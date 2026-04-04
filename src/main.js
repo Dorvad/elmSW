@@ -21,11 +21,15 @@ import {
 const state = createInitialState();
 let tickHandle = null;
 
+const RING_CIRCUMFERENCE = 553; // 2π × 88
+
 const els = {
   selectScreen: document.getElementById('screen-select'),
   timerScreen: document.getElementById('screen-timer'),
   roomCards: document.getElementById('room-cards'),
   roomName: document.getElementById('room-name'),
+  timerWrapper: document.getElementById('timer-wrapper'),
+  ringProgress: document.getElementById('ring-progress'),
   timerValue: document.getElementById('timer-value'),
   remainingValue: document.getElementById('remaining-value'),
   statusText: document.getElementById('status-text'),
@@ -104,6 +108,13 @@ function render() {
   els.stageDeadline.textContent = `יעד: עד דקה ${stage.targetMinute}`;
   els.nextExpected.textContent = `מעבר צפוי הבא: ${stage.targetMinute}:00`;
 
+  // Update ring progress
+  const totalMs = APP_CONFIG.totalMinutes * 60000;
+  const progress = Math.min(1, elapsedMs / totalMs);
+  els.ringProgress.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+  els.timerWrapper.dataset.status = status.key;
+  els.timerValue.classList.toggle('running', state.isRunning && !state.isPaused);
+
   renderTimeline(room);
   renderNotes(room);
   renderControls(room);
@@ -115,9 +126,11 @@ function renderTimeline(room) {
   els.stageTimeline.innerHTML = room.stages.map((stage, index) => {
     const cls = index < state.currentStageIndex ? 'done' : index === state.currentStageIndex ? 'current' : 'upcoming';
     return `<div class="stage-node ${cls}">
-      <strong>שלב ${index + 1}</strong>
-      <span>${stage.name}</span>
-      <small>יעד: ${stage.targetMinute}:00</small>
+      <div class="node-dot"></div>
+      <div class="stage-node-info">
+        <strong>שלב ${index + 1}: ${stage.name}</strong>
+        <small>יעד: ${stage.targetMinute}:00</small>
+      </div>
     </div>`;
   }).join('');
 }
