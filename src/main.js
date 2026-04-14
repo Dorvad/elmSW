@@ -54,7 +54,9 @@ const els = {
   toast: document.getElementById('toast'),
   tipFloat: document.getElementById('tip-float'),
   tipFloatText: document.getElementById('tip-float-text'),
-  tipFloatClose: document.getElementById('tip-float-close')
+  tipFloatClose: document.getElementById('tip-float-close'),
+  roomBanner: document.getElementById('room-banner'),
+  particleLayer: document.getElementById('particle-layer')
 };
 
 function renderRoomCards() {
@@ -73,7 +75,9 @@ function renderRoomCards() {
 
 function selectRoom(roomId) {
   state.selectedRoomId = roomId;
+  document.body.dataset.room = roomId;
   switchScreen('timer');
+  initParticles(roomId);
   render();
   persist();
 }
@@ -105,6 +109,7 @@ function render() {
   const status = getStatusByDelay(delay, APP_CONFIG.severeDelayMinutes);
 
   els.roomName.textContent = room.name;
+  els.roomBanner.textContent = room.displayName || room.name;
   els.timerValue.textContent = formatClock(elapsedMs);
   els.remainingValue.textContent = formatClock(remainingMs);
   els.statusText.textContent = status.label;
@@ -217,6 +222,60 @@ function showFloatingTip(text) {
   }, TIP_DURATION_MS);
 }
 
+// ─── Room theme helpers ───────────────────────────────────────────────────────
+
+function clearRoomTheme() {
+  delete document.body.dataset.room;
+  clearParticles();
+}
+
+function clearParticles() {
+  els.particleLayer.innerHTML = '';
+}
+
+function initParticles(roomId) {
+  clearParticles();
+  if (roomId === 'elm') createEmbers();
+  else if (roomId === 'katzia') createBloodDrips();
+}
+
+function createEmbers() {
+  const count = 22;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'ember';
+    const size = 2 + Math.random() * 5;
+    el.style.cssText = [
+      `left:${4 + Math.random() * 92}%`,
+      `bottom:${4 + Math.random() * 38}%`,
+      `width:${size}px`,
+      `height:${size}px`,
+      `--dur:${2.6 + Math.random() * 3.8}s`,
+      `--delay:${Math.random() * 6}s`,
+      `--drift:${(Math.random() - 0.5) * 90}px`
+    ].join(';');
+    els.particleLayer.appendChild(el);
+  }
+}
+
+function createBloodDrips() {
+  const count = 16;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'blood-drip';
+    el.style.cssText = [
+      `left:${Math.random() * 100}%`,
+      `width:${1 + Math.random() * 3}px`,
+      `--dur:${4 + Math.random() * 7}s`,
+      `--delay:${Math.random() * 12}s`,
+      `--drip-height:${28 + Math.random() * 90}px`
+    ].join(';');
+    els.particleLayer.appendChild(el);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function signalAlert(type) {
   if ('vibrate' in navigator) navigator.vibrate(type === 'timeup' ? [200, 120, 200] : 120);
 }
@@ -251,6 +310,7 @@ function setupEvents() {
 
   els.backBtn.addEventListener('click', () => {
     if (state.isRunning && !state.isPaused) pauseTimer(state);
+    clearRoomTheme();
     switchScreen('select');
     persist();
   });
@@ -267,6 +327,8 @@ function setupEvents() {
   els.quickRestart.addEventListener('click', () => {
     const sameRoom = state.selectedRoomId;
     Object.assign(state, createInitialState(), { selectedRoomId: sameRoom });
+    document.body.dataset.room = sameRoom;
+    initParticles(sameRoom);
     switchScreen('timer');
     closeSummary();
     render();
@@ -277,6 +339,7 @@ function setupEvents() {
     closeSummary();
     Object.assign(state, createInitialState());
     clearSession(APP_CONFIG.storageKey);
+    clearRoomTheme();
     switchScreen('select');
   });
 }
@@ -327,7 +390,11 @@ function tryRestore() {
   const saved = loadSession(APP_CONFIG.storageKey);
   if (!saved) return;
   Object.assign(state, createInitialState(), saved);
-  if (state.selectedRoomId) switchScreen('timer');
+  if (state.selectedRoomId) {
+    document.body.dataset.room = state.selectedRoomId;
+    switchScreen('timer');
+    initParticles(state.selectedRoomId);
+  }
 }
 
 function init() {

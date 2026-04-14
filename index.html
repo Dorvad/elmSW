@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./src/styles/main.css" />
+  <link rel="stylesheet" href="./src/styles/themes.css" />
 </head>
 <body>
   <!-- Select Screen -->
@@ -30,14 +31,15 @@
         <button id="btn-mute" class="secondary">🔔</button>
       </header>
 
+      <!-- Themed room banner (replaces topbar h2 visually) -->
+      <div id="room-banner" class="room-banner" aria-hidden="true"></div>
+
       <div id="alerts"></div>
 
       <!-- Circular timer ring -->
       <div class="timer-wrapper" id="timer-wrapper" data-status="good">
         <svg class="timer-ring" viewBox="0 0 200 200" width="224" height="224" aria-hidden="true">
-          <!-- Track -->
           <circle class="ring-track" cx="100" cy="100" r="88"/>
-          <!-- Progress arc -->
           <circle id="ring-progress" class="ring-progress" cx="100" cy="100" r="88"/>
         </svg>
         <div class="timer-center">
@@ -91,6 +93,9 @@
     </div>
     <button id="tip-float-close" class="tip-float__close" aria-label="סגור טיפ">✕</button>
   </div>
+
+  <!-- Particle layer for room atmosphere (embers / blood drips) -->
+  <div id="particle-layer" class="particle-layer" aria-hidden="true"></div>
 
   <div id="toast" class="toast"></div>
   <script type="module" src="./src/main.js"></script>

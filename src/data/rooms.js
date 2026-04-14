@@ -10,6 +10,7 @@ export const ROOMS = {
   elm: {
     id: 'elm',
     name: 'אלם סטריט',
+    displayName: 'Elm Street',
     durationMinutes: 60,
     stageCountLabel: '4 שלבים',
     notes: [
@@ -39,6 +40,7 @@ export const ROOMS = {
   katzia: {
     id: 'katzia',
     name: 'הקצביה',
+    displayName: 'The Butchery',
     durationMinutes: 60,
     stageCountLabel: '3 שלבים מרכזיים',
     notes: [
