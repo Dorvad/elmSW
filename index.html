@@ -8,16 +8,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./src/styles/main.css" />
+  <link rel="stylesheet" href="./src/styles/themes.css" />
 </head>
 <body>
+  <!-- Select Screen -->
   <main id="screen-select" class="screen active">
     <section class="container">
-      <h1>EscapeOps</h1>
-      <p>בחירת חדר להפעלה</p>
+      <div class="select-header">
+        <h1>EscapeOps</h1>
+        <p>בחירת חדר להפעלה</p>
+      </div>
       <div id="room-cards" class="room-grid"></div>
     </section>
   </main>
 
+  <!-- Timer Screen -->
   <main id="screen-timer" class="screen">
     <section class="container">
       <header class="topbar">
@@ -26,25 +31,42 @@
         <button id="btn-mute" class="secondary">🔔</button>
       </header>
 
-      <div id="alerts"></div>
-      <div id="timer-value" class="timer-big">00:00</div>
-      <div class="dual">זמן נותר: <span id="remaining-value">60:00</span></div>
-      <div id="status-text" class="status good">בזמן</div>
+      <!-- Themed room banner (replaces topbar h2 visually) -->
+      <div id="room-banner" class="room-banner" aria-hidden="true"></div>
 
+      <div id="alerts"></div>
+
+      <!-- Circular timer ring -->
+      <div class="timer-wrapper" id="timer-wrapper" data-status="good">
+        <svg class="timer-ring" viewBox="0 0 200 200" width="224" height="224" aria-hidden="true">
+          <circle class="ring-track" cx="100" cy="100" r="88"/>
+          <circle id="ring-progress" class="ring-progress" cx="100" cy="100" r="88"/>
+        </svg>
+        <div class="timer-center">
+          <div id="timer-value" class="timer-big">00:00</div>
+          <div class="dual">נותר: <span id="remaining-value">60:00</span></div>
+          <div id="status-text" class="status good">בזמן</div>
+        </div>
+      </div>
+
+      <!-- Current stage info -->
       <article class="card">
         <h3 id="stage-title"></h3>
         <p id="stage-deadline"></p>
         <p id="next-expected"></p>
       </article>
 
+      <!-- Stage timeline -->
       <section id="stage-timeline" class="stage-list card"></section>
 
+      <!-- Controls -->
       <div class="controls">
         <button id="btn-start-pause" class="primary">התחל</button>
         <button id="btn-reset" class="secondary">איפוס/סיכום</button>
         <button id="notes-toggle" class="secondary">הערות מפעיל</button>
       </div>
 
+      <!-- Notes panel -->
       <section id="notes-panel" class="card"></section>
     </section>
 
@@ -53,6 +75,7 @@
     </div>
   </main>
 
+  <!-- Summary Modal -->
   <dialog id="summary-modal">
     <div id="summary-body"></div>
     <div class="controls">
@@ -60,6 +83,19 @@
       <button id="close-summary" class="secondary">סגור וחזור לבחירה</button>
     </div>
   </dialog>
+
+  <!-- Floating operator tip -->
+  <div id="tip-float" class="tip-float" aria-live="polite">
+    <span class="tip-float__icon">💡</span>
+    <div class="tip-float__body">
+      <div class="tip-float__label">טיפ מפעיל</div>
+      <div id="tip-float-text" class="tip-float__text"></div>
+    </div>
+    <button id="tip-float-close" class="tip-float__close" aria-label="סגור טיפ">✕</button>
+  </div>
+
+  <!-- Particle layer for room atmosphere (embers / blood drips) -->
+  <div id="particle-layer" class="particle-layer" aria-hidden="true"></div>
 
   <div id="toast" class="toast"></div>
   <script type="module" src="./src/main.js"></script>

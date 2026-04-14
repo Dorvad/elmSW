@@ -10,6 +10,7 @@ export function createInitialState() {
     muteAlerts: false,
     sessionEnded: false,
     alertsShown: {},
+    shownTips: {},
     toastMessage: '',
     toastUntil: 0
   };

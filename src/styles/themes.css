@@ -1,0 +1,467 @@
+/* =============================================================================
+   ESCAPEOPS — ROOM VISUAL THEMES
+   Elm Street : Fire & Nightmare   |   The Butchery : Blood & Steel
+   ============================================================================= */
+
+/* Horror display font for English room banners */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&display=swap');
+
+/* =============================================================================
+   SHARED — Room Banner & Particle Layer
+   ============================================================================= */
+
+/* Hide topbar h2 room-name once a room theme is active (banner replaces it) */
+body[data-room] .topbar #room-name {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.room-banner {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 2px 0 10px;
+  position: relative;
+  z-index: 2;
+  user-select: none;
+  line-height: 1.2;
+}
+
+/* Particle layer — fixed full-viewport overlay, sits above screens */
+.particle-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+
+/* =============================================================================
+   ELM STREET — Fire & Nightmare Theme
+   ============================================================================= */
+
+body[data-room="elm"] {
+  background: #0d0400;
+}
+
+/* Fire glow erupting from the bottom edges */
+body[data-room="elm"]::before {
+  background:
+    radial-gradient(ellipse 130% 55% at 50% 110%, rgba(215, 75, 0, 0.65) 0%, transparent 58%),
+    radial-gradient(ellipse 75% 50% at  8% 98%, rgba(165, 45, 0, 0.42) 0%, transparent 52%),
+    radial-gradient(ellipse 75% 50% at 92% 98%, rgba(165, 45, 0, 0.42) 0%, transparent 52%),
+    radial-gradient(ellipse 55% 55% at 50% 50%, rgba(6, 1, 0, 0.45) 0%, transparent 75%);
+  animation: elmFireBreath 4s ease-in-out infinite alternate;
+}
+@keyframes elmFireBreath {
+  0%   { opacity: 0.80; }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.87; }
+}
+
+/* --- Banner --- */
+body[data-room="elm"] .room-banner {
+  color: #ff7500;
+  text-shadow:
+    0 0  8px rgba(255, 120, 0, 0.95),
+    0 0 24px rgba(255,  70, 0, 0.65),
+    0 0 52px rgba(200,  30, 0, 0.38),
+    0 2px  8px rgba(0, 0, 0, 0.9);
+  animation: elmBannerFlicker 7s ease-in-out infinite;
+}
+@keyframes elmBannerFlicker {
+  0%,  89%, 91%, 93%, 95%, 100% { opacity: 1; }
+  90%  { opacity: 0.72; }
+  92%  { opacity: 0.90; }
+  94%  { opacity: 0.78; text-shadow: 0 0 14px rgba(255,140,0,1), 0 0 36px rgba(255,80,0,.85); }
+}
+/* Three claw scratches under the title */
+body[data-room="elm"] .room-banner::after {
+  content: '';
+  display: block;
+  height: 4px;
+  width: 180px;
+  margin: 6px auto 0;
+  background: linear-gradient(90deg,
+    transparent  0%,  transparent  6%,
+    rgba(255,80,0,.55)  6%, rgba(255,80,0,.55)  7.5%,
+    transparent  7.5%, transparent 14%,
+    rgba(255,70,0,.50) 14%, rgba(255,70,0,.50) 15.5%,
+    transparent 15.5%, transparent 22%,
+    rgba(255,80,0,.45) 22%, rgba(255,80,0,.45) 23.5%,
+    transparent 23.5%, transparent 100%
+  );
+}
+
+/* --- Ring --- */
+body[data-room="elm"] .ring-track {
+  stroke: rgba(60, 15, 0, 0.45);
+}
+body[data-room="elm"] [data-status="good"] .ring-progress {
+  stroke: #ff8800;
+  filter: drop-shadow(0 0 12px rgba(255,136,0,.78))
+          drop-shadow(0 0 28px rgba(220, 70,0,.40));
+  animation: none;
+}
+body[data-room="elm"] [data-status="warn"] .ring-progress {
+  stroke: #ff5200;
+  filter: drop-shadow(0 0 14px rgba(255, 82,0,.88))
+          drop-shadow(0 0 32px rgba(200, 40,0,.50));
+  animation: elmFlicker 0.35s ease-in-out infinite !important;
+}
+body[data-room="elm"] [data-status="danger"] .ring-progress {
+  stroke: #ff2000;
+  filter: drop-shadow(0 0 18px rgba(255, 32,0,.96))
+          drop-shadow(0 0 40px rgba(200,  0,0,.60));
+  animation: elmFlicker 0.18s ease-in-out infinite !important;
+}
+@keyframes elmFlicker {
+  0%   { opacity: 1.00; }
+  20%  { opacity: 0.78; }
+  42%  { opacity: 1.00; }
+  65%  { opacity: 0.85; }
+  82%  { opacity: 1.00; }
+  91%  { opacity: 0.72; }
+  100% { opacity: 1.00; }
+}
+
+/* --- Timer digits --- */
+body[data-room="elm"] .timer-big {
+  color: #ff9500 !important;
+  text-shadow:
+    0 0 10px rgba(255,148,0,.92),
+    0 0 30px rgba(255, 80,0,.55),
+    0 0 62px rgba(200, 40,0,.25);
+}
+body[data-room="elm"] [data-status="danger"] .timer-big {
+  animation: elmDigitsDanger 0.22s ease-in-out infinite !important;
+}
+@keyframes elmDigitsDanger {
+  0%, 100% {
+    color: #ff8800;
+    text-shadow: 0 0 12px rgba(255,120,0,1), 0 0 36px rgba(255,50,0,.80), 0 0 70px rgba(200,0,0,.50);
+  }
+  50% {
+    color: #ff2200;
+    text-shadow: 0 0 20px rgba(255,34,0,1), 0 0 50px rgba(220,0,0,.90), 0 0 90px rgba(180,0,0,.60);
+  }
+}
+
+/* --- Status badge --- */
+body[data-room="elm"] .status.good   { color: #ff8800; background: rgba(255,136,0,.12); }
+body[data-room="elm"] .status.warn   { color: #ff5200; background: rgba(255, 82,0,.14); }
+body[data-room="elm"] .status.danger { color: #ff2000; background: rgba(255, 32,0,.15); }
+
+/* --- Cards & timeline --- */
+body[data-room="elm"] .card {
+  background: rgba(18, 5, 0, 0.82);
+  border-color: rgba(150, 55, 0, 0.33);
+}
+body[data-room="elm"] .stage-node {
+  background: rgba(10, 3, 0, 0.75);
+  border-color: rgba(100, 30, 0, 0.50);
+}
+body[data-room="elm"] .stage-node.done { border-color: rgba(150, 60, 0, 0.28); }
+body[data-room="elm"] .stage-node.done .node-dot {
+  background: #7a2e00;
+  box-shadow: 0 0 6px rgba(180,70,0,.60);
+}
+body[data-room="elm"] .stage-node.current {
+  border-color: #ff6400;
+  animation: elmStagePulse 3s ease-in-out infinite;
+}
+body[data-room="elm"] .stage-node.current .node-dot {
+  background: #ff6400;
+  box-shadow: 0 0 8px rgba(255,100,0,.82);
+}
+@keyframes elmStagePulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(255,100,0,.14); }
+  50%       { box-shadow: 0 0 30px rgba(255,100,0,.34); }
+}
+
+/* --- Buttons --- */
+body[data-room="elm"] .primary {
+  background: linear-gradient(135deg, #a03000, #6c2000);
+  box-shadow: 0 4px 20px rgba(150,50,0,.52);
+}
+body[data-room="elm"] .primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 6px 28px rgba(200,70,0,.68);
+}
+body[data-room="elm"] .secondary {
+  background: rgba(25, 8, 0, 0.85);
+  border-color: rgba(120, 40, 0, 0.35);
+}
+body[data-room="elm"] .sticky button:not(:disabled) {
+  background: linear-gradient(135deg, #7a1a00, #b02800);
+  box-shadow: 0 4px 24px rgba(140,35,0,.52);
+}
+body[data-room="elm"] .sticky button:not(:disabled):hover {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 32px rgba(180,50,0,.68);
+}
+
+/* --- Alerts --- */
+body[data-room="elm"] .alert.approaching,
+body[data-room="elm"] .alert.final {
+  background: linear-gradient(135deg, rgba(80,25,0,.92), rgba(52,14,0,.92));
+  border-color: rgba(255,100,0,.40);
+  color: #ffcc80;
+}
+body[data-room="elm"] .alert.overdue,
+body[data-room="elm"] .alert.severe,
+body[data-room="elm"] .alert.timeup {
+  background: linear-gradient(135deg, rgba(90,10,0,.92), rgba(58, 4,0,.92));
+  border-color: rgba(255,50,0,.42);
+  color: #ffaa80;
+}
+
+/* --- Tip float --- */
+body[data-room="elm"] .tip-float {
+  border-color: rgba(180,70,0,.40);
+  border-right-color: #ff7700;
+  background: rgba(18, 6, 0, 0.96);
+}
+body[data-room="elm"] .tip-float__label { color: #ff8800; }
+body[data-room="elm"] .tip-float::after {
+  background: linear-gradient(90deg, #ff7700, transparent);
+}
+
+
+/* =============================================================================
+   THE BUTCHERY — Blood & Steel Theme
+   ============================================================================= */
+
+body[data-room="katzia"] {
+  background: #080303;
+}
+
+/* Blood seeping down from above */
+body[data-room="katzia"]::before {
+  background:
+    radial-gradient(ellipse 105% 52% at 50%  -4%, rgba(155, 0, 22, 0.68) 0%, transparent 60%),
+    radial-gradient(ellipse  70% 55% at  5%  12%, rgba(100, 0, 15, 0.42) 0%, transparent 52%),
+    radial-gradient(ellipse  70% 55% at 95%  12%, rgba(100, 0, 15, 0.42) 0%, transparent 52%),
+    radial-gradient(ellipse  65% 70% at 50%  55%, rgba(5, 1, 1, 0.50) 0%, transparent 72%);
+  animation: katziaBloodPulse 5s ease-in-out infinite alternate;
+}
+@keyframes katziaBloodPulse {
+  0%   { opacity: 0.80; }
+  50%  { opacity: 1.00; }
+  100% { opacity: 0.84; }
+}
+
+/* --- Banner --- */
+body[data-room="katzia"] .room-banner {
+  color: #cc0020;
+  text-shadow:
+    0 0  8px rgba(200, 0, 32, 0.96),
+    0 0 24px rgba(150, 0, 20, 0.60),
+    0 0 52px rgba(100, 0, 15, 0.34),
+    0 2px  8px rgba(0, 0, 0, 0.95);
+}
+/* Blood drip marks under the title */
+body[data-room="katzia"] .room-banner::after {
+  content: '';
+  display: block;
+  height: 12px;
+  width: 180px;
+  margin: 2px auto 0;
+  background:
+    radial-gradient(ellipse 5px 12px at  14px 6px, #8a0012 55%, transparent 80%),
+    radial-gradient(ellipse 4px  9px at  38px 4px, #7a0010 55%, transparent 80%),
+    radial-gradient(ellipse 6px 13px at  66px 7px, #990015 55%, transparent 80%),
+    radial-gradient(ellipse 4px 10px at  93px 5px, #880012 55%, transparent 80%),
+    radial-gradient(ellipse 5px 12px at 120px 6px, #7a0010 55%, transparent 80%),
+    radial-gradient(ellipse 4px  9px at 148px 4px, #990015 55%, transparent 80%),
+    radial-gradient(ellipse 5px 11px at 170px 5px, #880012 55%, transparent 80%);
+}
+
+/* --- Ring --- */
+body[data-room="katzia"] .ring-track {
+  stroke: rgba(40, 5, 8, 0.50);
+}
+body[data-room="katzia"] [data-status="good"] .ring-progress {
+  stroke: #a80018;
+  filter: drop-shadow(0 0 12px rgba(168, 0, 24, .78))
+          drop-shadow(0 0 26px rgba(120, 0, 16, .40));
+  animation: none;
+}
+body[data-room="katzia"] [data-status="warn"] .ring-progress {
+  stroke: #cc001e;
+  filter: drop-shadow(0 0 14px rgba(200, 0, 30, .88))
+          drop-shadow(0 0 30px rgba(160, 0, 20, .52));
+  animation: none;
+}
+body[data-room="katzia"] [data-status="danger"] .ring-progress {
+  stroke: #ff002a;
+  filter: drop-shadow(0 0 16px rgba(255, 0, 42, .96))
+          drop-shadow(0 0 36px rgba(200, 0, 28, .62));
+  animation: katziaBlooPulse 0.9s ease-in-out infinite !important;
+}
+@keyframes katziaBlooPulse {
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(220, 0, 28, .75)); }
+  50%       { filter: drop-shadow(0 0 26px rgba(255, 0, 42,1.00)) drop-shadow(0 0 46px rgba(200, 0, 28, .65)); }
+}
+
+/* --- Timer digits --- */
+body[data-room="katzia"] .timer-big {
+  color: #dd0025 !important;
+  text-shadow:
+    0 0 10px rgba(200,  0, 38, 0.92),
+    0 0 28px rgba(160,  0, 24, 0.52),
+    0 0 56px rgba(100,  0, 15, 0.24);
+}
+body[data-room="katzia"] [data-status="danger"] .timer-big {
+  animation: katziaDigitsDanger 0.85s ease-in-out infinite !important;
+}
+@keyframes katziaDigitsDanger {
+  0%, 100% {
+    color: #cc001e;
+    text-shadow: 0 0 10px rgba(200,0,30,.92), 0 0 28px rgba(160,0,22,.52);
+  }
+  50% {
+    color: #ff002a;
+    text-shadow: 0 0 20px rgba(255,0,42,1), 0 0 48px rgba(200,0,32,.88), 0 0 84px rgba(150,0,20,.52);
+  }
+}
+
+/* --- Status badge --- */
+body[data-room="katzia"] .status.good   { color: #cc1130; background: rgba(200, 0, 38, .12); }
+body[data-room="katzia"] .status.warn   { color: #dd001e; background: rgba(220, 0, 30, .14); }
+body[data-room="katzia"] .status.danger { color: #ff002a; background: rgba(255, 0, 42, .16); }
+
+/* --- Cards & timeline --- */
+body[data-room="katzia"] .card {
+  background: rgba(10, 3, 3, 0.84);
+  border-color: rgba(100, 5, 14, 0.34);
+}
+body[data-room="katzia"] .stage-node {
+  background: rgba(8, 2, 2, 0.78);
+  border-color: rgba(80, 5, 12, 0.55);
+}
+body[data-room="katzia"] .stage-node.done { border-color: rgba(100, 0, 14, 0.28); }
+body[data-room="katzia"] .stage-node.done .node-dot {
+  background: #600010;
+  box-shadow: 0 0 6px rgba(145, 0, 20, .55);
+}
+body[data-room="katzia"] .stage-node.current {
+  border-color: #cc001e;
+  animation: katziaStagePulse 3s ease-in-out infinite;
+}
+body[data-room="katzia"] .stage-node.current .node-dot {
+  background: #cc001e;
+  box-shadow: 0 0 8px rgba(200, 0, 30, .82);
+}
+@keyframes katziaStagePulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(200,0,30,.12); }
+  50%       { box-shadow: 0 0 28px rgba(200,0,30,.32); }
+}
+
+/* --- Buttons --- */
+body[data-room="katzia"] .primary {
+  background: linear-gradient(135deg, #680010, #420008);
+  box-shadow: 0 4px 20px rgba(100, 0, 20, .52);
+}
+body[data-room="katzia"] .primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 6px 28px rgba(140, 0, 26, .68);
+}
+body[data-room="katzia"] .secondary {
+  background: rgba(18, 4, 4, 0.88);
+  border-color: rgba(100, 5, 14, 0.35);
+}
+body[data-room="katzia"] .sticky button:not(:disabled) {
+  background: linear-gradient(135deg, #4e0008, #780010);
+  box-shadow: 0 4px 24px rgba(90, 0, 18, .52);
+}
+body[data-room="katzia"] .sticky button:not(:disabled):hover {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 32px rgba(130, 0, 24, .68);
+}
+
+/* --- Alerts --- */
+body[data-room="katzia"] .alert.approaching,
+body[data-room="katzia"] .alert.final {
+  background: linear-gradient(135deg, rgba(70, 5,10,.92), rgba(44, 2, 6,.92));
+  border-color: rgba(180, 0, 24, .40);
+  color: #ffb0b0;
+}
+body[data-room="katzia"] .alert.overdue,
+body[data-room="katzia"] .alert.severe,
+body[data-room="katzia"] .alert.timeup {
+  background: linear-gradient(135deg, rgba(85, 0,12,.92), rgba(54, 0, 7,.92));
+  border-color: rgba(220, 0, 28, .42);
+  color: #ff9090;
+}
+
+/* --- Tip float --- */
+body[data-room="katzia"] .tip-float {
+  border-color: rgba(140, 0, 20, .40);
+  border-right-color: #cc001e;
+  background: rgba(10, 2, 2, 0.96);
+}
+body[data-room="katzia"] .tip-float__label { color: #dd2240; }
+body[data-room="katzia"] .tip-float::after {
+  background: linear-gradient(90deg, #cc001e, transparent);
+}
+
+
+/* =============================================================================
+   PARTICLES
+   ============================================================================= */
+
+/* --- Floating embers (Elm Street) --- */
+.ember {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%,
+    #fff9cc,
+    #ff8c00 40%,
+    rgba(200, 50, 0, 0.12)
+  );
+  box-shadow: 0 0 5px 1px rgba(255, 140, 0, 0.45);
+  opacity: 0;
+  animation: floatEmber var(--dur, 3.2s) var(--delay, 0s) ease-out infinite;
+}
+@keyframes floatEmber {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) scale(1);
+    filter: blur(0px);
+  }
+  8%  { opacity: 0.92; }
+  70% { opacity: 0.30; }
+  100% {
+    opacity: 0;
+    transform: translateY(-360px) translateX(var(--drift, 22px)) scale(0.07);
+    filter: blur(1.5px);
+  }
+}
+
+/* --- Blood drips (The Butchery) --- */
+.blood-drip {
+  position: absolute;
+  top: 0;
+  background: linear-gradient(to bottom,
+    rgba(100, 0, 14, 0.92),
+    rgba(180, 0, 24, 0.82),
+    rgba(200, 0, 28, 0.55),
+    rgba(140, 0, 18, 0.15)
+  );
+  border-radius: 0 0 50% 50%;
+  transform-origin: top center;
+  opacity: 0;
+  animation: bloodDrip var(--dur, 6s) var(--delay, 0s) ease-in infinite;
+}
+@keyframes bloodDrip {
+  0%  { height: 0; opacity: 0; }
+  4%  { opacity: 0.85; }
+  62% { height: var(--drip-height, 65px); opacity: 0.78; }
+  82% { height: var(--drip-height, 65px); opacity: 0.50; }
+  100%{ height: var(--drip-height, 65px); opacity: 0; }
+}

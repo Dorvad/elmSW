@@ -20,12 +20,18 @@ import {
 
 const state = createInitialState();
 let tickHandle = null;
+let tipHideTimer = null;
+const TIP_DURATION_MS = 7000;
+
+const RING_CIRCUMFERENCE = 553; // 2π × 88
 
 const els = {
   selectScreen: document.getElementById('screen-select'),
   timerScreen: document.getElementById('screen-timer'),
   roomCards: document.getElementById('room-cards'),
   roomName: document.getElementById('room-name'),
+  timerWrapper: document.getElementById('timer-wrapper'),
+  ringProgress: document.getElementById('ring-progress'),
   timerValue: document.getElementById('timer-value'),
   remainingValue: document.getElementById('remaining-value'),
   statusText: document.getElementById('status-text'),
@@ -45,7 +51,12 @@ const els = {
   summaryBody: document.getElementById('summary-body'),
   quickRestart: document.getElementById('quick-restart'),
   closeSummary: document.getElementById('close-summary'),
-  toast: document.getElementById('toast')
+  toast: document.getElementById('toast'),
+  tipFloat: document.getElementById('tip-float'),
+  tipFloatText: document.getElementById('tip-float-text'),
+  tipFloatClose: document.getElementById('tip-float-close'),
+  roomBanner: document.getElementById('room-banner'),
+  particleLayer: document.getElementById('particle-layer')
 };
 
 function renderRoomCards() {
@@ -64,7 +75,9 @@ function renderRoomCards() {
 
 function selectRoom(roomId) {
   state.selectedRoomId = roomId;
+  document.body.dataset.room = roomId;
   switchScreen('timer');
+  initParticles(roomId);
   render();
   persist();
 }
@@ -96,6 +109,7 @@ function render() {
   const status = getStatusByDelay(delay, APP_CONFIG.severeDelayMinutes);
 
   els.roomName.textContent = room.name;
+  els.roomBanner.textContent = room.displayName || room.name;
   els.timerValue.textContent = formatClock(elapsedMs);
   els.remainingValue.textContent = formatClock(remainingMs);
   els.statusText.textContent = status.label;
@@ -104,20 +118,30 @@ function render() {
   els.stageDeadline.textContent = `יעד: עד דקה ${stage.targetMinute}`;
   els.nextExpected.textContent = `מעבר צפוי הבא: ${stage.targetMinute}:00`;
 
+  // Update ring progress
+  const totalMs = APP_CONFIG.totalMinutes * 60000;
+  const progress = Math.min(1, elapsedMs / totalMs);
+  els.ringProgress.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+  els.timerWrapper.dataset.status = status.key;
+  els.timerValue.classList.toggle('running', state.isRunning && !state.isPaused);
+
   renderTimeline(room);
   renderNotes(room);
   renderControls(room);
   renderToast();
   checkAndShowAlerts(room, elapsedMs);
+  checkAndShowTip(room, elapsedMs);
 }
 
 function renderTimeline(room) {
   els.stageTimeline.innerHTML = room.stages.map((stage, index) => {
     const cls = index < state.currentStageIndex ? 'done' : index === state.currentStageIndex ? 'current' : 'upcoming';
     return `<div class="stage-node ${cls}">
-      <strong>שלב ${index + 1}</strong>
-      <span>${stage.name}</span>
-      <small>יעד: ${stage.targetMinute}:00</small>
+      <div class="node-dot"></div>
+      <div class="stage-node-info">
+        <strong>שלב ${index + 1}: ${stage.name}</strong>
+        <small>יעד: ${stage.targetMinute}:00</small>
+      </div>
     </div>`;
   }).join('');
 }
@@ -162,6 +186,96 @@ function checkAndShowAlerts(room, elapsedMs) {
   if (!state.muteAlerts) signalAlert(alert.type);
 }
 
+function checkAndShowTip(room, elapsedMs) {
+  if (!state.isRunning || state.isPaused) return;
+  if (!room.tips || !room.tips.length) return;
+
+  const elapsedMinutes = elapsedMs / 60000;
+  let tipToShow = null;
+
+  for (const tip of room.tips) {
+    const key = `tip_${tip.minute}`;
+    if (state.shownTips[key]) continue;
+    if (elapsedMinutes >= tip.minute) {
+      state.shownTips[key] = true;
+      // Only display if we're within 90 seconds of crossing this minute
+      if (elapsedMinutes < tip.minute + 1.5) {
+        tipToShow = tip.text;
+      }
+    }
+  }
+
+  if (tipToShow) showFloatingTip(tipToShow);
+}
+
+function showFloatingTip(text) {
+  els.tipFloatText.textContent = text;
+  els.tipFloat.style.setProperty('--tip-duration', `${TIP_DURATION_MS}ms`);
+  els.tipFloat.classList.remove('visible');
+  // Force reflow so the progress bar animation restarts
+  void els.tipFloat.offsetWidth;
+  els.tipFloat.classList.add('visible');
+
+  if (tipHideTimer) clearTimeout(tipHideTimer);
+  tipHideTimer = setTimeout(() => {
+    els.tipFloat.classList.remove('visible');
+  }, TIP_DURATION_MS);
+}
+
+// ─── Room theme helpers ───────────────────────────────────────────────────────
+
+function clearRoomTheme() {
+  delete document.body.dataset.room;
+  clearParticles();
+}
+
+function clearParticles() {
+  els.particleLayer.innerHTML = '';
+}
+
+function initParticles(roomId) {
+  clearParticles();
+  if (roomId === 'elm') createEmbers();
+  else if (roomId === 'katzia') createBloodDrips();
+}
+
+function createEmbers() {
+  const count = 22;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'ember';
+    const size = 2 + Math.random() * 5;
+    el.style.cssText = [
+      `left:${4 + Math.random() * 92}%`,
+      `bottom:${4 + Math.random() * 38}%`,
+      `width:${size}px`,
+      `height:${size}px`,
+      `--dur:${2.6 + Math.random() * 3.8}s`,
+      `--delay:${Math.random() * 6}s`,
+      `--drift:${(Math.random() - 0.5) * 90}px`
+    ].join(';');
+    els.particleLayer.appendChild(el);
+  }
+}
+
+function createBloodDrips() {
+  const count = 16;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'blood-drip';
+    el.style.cssText = [
+      `left:${Math.random() * 100}%`,
+      `width:${1 + Math.random() * 3}px`,
+      `--dur:${4 + Math.random() * 7}s`,
+      `--delay:${Math.random() * 12}s`,
+      `--drip-height:${28 + Math.random() * 90}px`
+    ].join(';');
+    els.particleLayer.appendChild(el);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function signalAlert(type) {
   if ('vibrate' in navigator) navigator.vibrate(type === 'timeup' ? [200, 120, 200] : 120);
 }
@@ -196,6 +310,7 @@ function setupEvents() {
 
   els.backBtn.addEventListener('click', () => {
     if (state.isRunning && !state.isPaused) pauseTimer(state);
+    clearRoomTheme();
     switchScreen('select');
     persist();
   });
@@ -204,9 +319,16 @@ function setupEvents() {
     els.notesPanel.classList.toggle('open');
   });
 
+  els.tipFloatClose.addEventListener('click', () => {
+    els.tipFloat.classList.remove('visible');
+    if (tipHideTimer) clearTimeout(tipHideTimer);
+  });
+
   els.quickRestart.addEventListener('click', () => {
     const sameRoom = state.selectedRoomId;
     Object.assign(state, createInitialState(), { selectedRoomId: sameRoom });
+    document.body.dataset.room = sameRoom;
+    initParticles(sameRoom);
     switchScreen('timer');
     closeSummary();
     render();
@@ -217,6 +339,7 @@ function setupEvents() {
     closeSummary();
     Object.assign(state, createInitialState());
     clearSession(APP_CONFIG.storageKey);
+    clearRoomTheme();
     switchScreen('select');
   });
 }
@@ -267,7 +390,11 @@ function tryRestore() {
   const saved = loadSession(APP_CONFIG.storageKey);
   if (!saved) return;
   Object.assign(state, createInitialState(), saved);
-  if (state.selectedRoomId) switchScreen('timer');
+  if (state.selectedRoomId) {
+    document.body.dataset.room = state.selectedRoomId;
+    switchScreen('timer');
+    initParticles(state.selectedRoomId);
+  }
 }
 
 function init() {
