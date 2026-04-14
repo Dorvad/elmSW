@@ -11,18 +11,64 @@
   <link rel="stylesheet" href="./src/styles/themes.css" />
 </head>
 <body>
-  <!-- Select Screen -->
+
+  <!-- ═══════════════════════════════════════
+       SELECT SCREEN — Split room picker
+       ═══════════════════════════════════════ -->
   <main id="screen-select" class="screen active">
-    <section class="container">
-      <div class="select-header">
-        <h1>EscapeOps</h1>
-        <p>בחירת חדר להפעלה</p>
-      </div>
-      <div id="room-cards" class="room-grid"></div>
-    </section>
+
+    <header class="select-topbar">
+      <span class="select-topbar__logo">EscapeOps</span>
+      <span class="select-topbar__sub">בחר חדר להפעלה</span>
+    </header>
+
+    <div class="split-container">
+
+      <!-- Elm Street panel -->
+      <button class="split-panel split-panel--elm" data-room-id="elm" aria-label="אלם סטריט">
+        <div class="panel-bg panel-bg--elm"></div>
+        <div id="elm-panel-particles" class="panel-particle-layer"></div>
+        <div class="panel-content">
+          <div class="panel-icon">🔪</div>
+          <div class="panel-title-en">Elm<br>Street</div>
+          <div class="panel-divider"></div>
+          <div class="panel-title-he">אלם סטריט</div>
+          <ul class="panel-meta">
+            <li>4 שלבים</li>
+            <li>60 דקות</li>
+            <li>מפחיד גבוה</li>
+          </ul>
+          <div class="panel-tap">התחל ›</div>
+        </div>
+      </button>
+
+      <!-- Slash divider -->
+      <div class="split-slash" aria-hidden="true"></div>
+
+      <!-- The Butchery panel -->
+      <button class="split-panel split-panel--katzia" data-room-id="katzia" aria-label="הקצביה">
+        <div class="panel-bg panel-bg--katzia"></div>
+        <div id="katzia-panel-particles" class="panel-particle-layer"></div>
+        <div class="panel-content">
+          <div class="panel-icon">🥩</div>
+          <div class="panel-title-en">The<br>Butchery</div>
+          <div class="panel-divider"></div>
+          <div class="panel-title-he">הקצביה</div>
+          <ul class="panel-meta">
+            <li>3 שלבים</li>
+            <li>60 דקות</li>
+            <li>קריפי-מציאותי</li>
+          </ul>
+          <div class="panel-tap">‹ התחל</div>
+        </div>
+      </button>
+
+    </div>
   </main>
 
-  <!-- Timer Screen -->
+  <!-- ═══════════════════════════════════════
+       TIMER SCREEN
+       ═══════════════════════════════════════ -->
   <main id="screen-timer" class="screen">
     <section class="container">
       <header class="topbar">
@@ -31,12 +77,10 @@
         <button id="btn-mute" class="secondary">🔔</button>
       </header>
 
-      <!-- Themed room banner (replaces topbar h2 visually) -->
       <div id="room-banner" class="room-banner" aria-hidden="true"></div>
 
       <div id="alerts"></div>
 
-      <!-- Circular timer ring -->
       <div class="timer-wrapper" id="timer-wrapper" data-status="good">
         <svg class="timer-ring" viewBox="0 0 200 200" width="224" height="224" aria-hidden="true">
           <circle class="ring-track" cx="100" cy="100" r="88"/>
@@ -49,24 +93,20 @@
         </div>
       </div>
 
-      <!-- Current stage info -->
       <article class="card">
         <h3 id="stage-title"></h3>
         <p id="stage-deadline"></p>
         <p id="next-expected"></p>
       </article>
 
-      <!-- Stage timeline -->
       <section id="stage-timeline" class="stage-list card"></section>
 
-      <!-- Controls -->
       <div class="controls">
         <button id="btn-start-pause" class="primary">התחל</button>
         <button id="btn-reset" class="secondary">איפוס/סיכום</button>
         <button id="notes-toggle" class="secondary">הערות מפעיל</button>
       </div>
 
-      <!-- Notes panel -->
       <section id="notes-panel" class="card"></section>
     </section>
 
@@ -94,8 +134,11 @@
     <button id="tip-float-close" class="tip-float__close" aria-label="סגור טיפ">✕</button>
   </div>
 
-  <!-- Particle layer for room atmosphere (embers / blood drips) -->
+  <!-- Particle layer (timer screen atmosphere) -->
   <div id="particle-layer" class="particle-layer" aria-hidden="true"></div>
+
+  <!-- Room-select transition overlay -->
+  <div id="transition-overlay" class="transition-overlay" aria-hidden="true"></div>
 
   <div id="toast" class="toast"></div>
   <script type="module" src="./src/main.js"></script>

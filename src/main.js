@@ -56,21 +56,75 @@ const els = {
   tipFloatText: document.getElementById('tip-float-text'),
   tipFloatClose: document.getElementById('tip-float-close'),
   roomBanner: document.getElementById('room-banner'),
-  particleLayer: document.getElementById('particle-layer')
+  particleLayer: document.getElementById('particle-layer'),
+  transitionOverlay: document.getElementById('transition-overlay')
 };
 
 function renderRoomCards() {
-  els.roomCards.innerHTML = roomList.map((room) => `
-    <button class="room-card" data-room-id="${room.id}">
-      <h2>${room.name}</h2>
-      <p>משך ממוצע: ${room.durationMinutes} דקות</p>
-      <p>${room.stageCountLabel}</p>
-    </button>
-  `).join('');
-
-  els.roomCards.querySelectorAll('.room-card').forEach((button) => {
-    button.addEventListener('click', () => selectRoom(button.dataset.roomId));
+  // Panels are hardcoded in HTML; just wire click handlers and populate particles
+  document.querySelectorAll('.split-panel[data-room-id]').forEach((panel) => {
+    panel.addEventListener('click', () => {
+      if (panel.classList.contains('is-selecting')) return;
+      triggerRoomSelect(panel, panel.dataset.roomId);
+    });
   });
+  initSelectParticles();
+}
+
+function triggerRoomSelect(panel, roomId) {
+  panel.classList.add('is-selecting');
+
+  els.transitionOverlay.className =
+    `transition-overlay transition-overlay--${roomId}`;
+
+  // Brief pause → fire overlay burst → switch screen at peak opacity
+  setTimeout(() => {
+    els.transitionOverlay.classList.add('active');
+    setTimeout(() => selectRoom(roomId), 215);
+    setTimeout(() => {
+      els.transitionOverlay.className = 'transition-overlay';
+    }, 560);
+  }, 100);
+}
+
+function initSelectParticles() {
+  // Embers on Elm Street panel
+  const elmPtcl = document.getElementById('elm-panel-particles');
+  if (elmPtcl) {
+    elmPtcl.innerHTML = '';
+    for (let i = 0; i < 13; i++) {
+      const el = document.createElement('div');
+      el.className = 'ember';
+      const s = 2 + Math.random() * 4;
+      el.style.cssText = [
+        `left:${5 + Math.random() * 90}%`,
+        `bottom:${4 + Math.random() * 44}%`,
+        `width:${s}px`, `height:${s}px`,
+        `--dur:${2.6 + Math.random() * 3.4}s`,
+        `--delay:${Math.random() * 5.5}s`,
+        `--drift:${(Math.random() - 0.5) * 55}px`
+      ].join(';');
+      elmPtcl.appendChild(el);
+    }
+  }
+
+  // Blood drips on Butchery panel
+  const katziaPtcl = document.getElementById('katzia-panel-particles');
+  if (katziaPtcl) {
+    katziaPtcl.innerHTML = '';
+    for (let i = 0; i < 11; i++) {
+      const el = document.createElement('div');
+      el.className = 'blood-drip';
+      el.style.cssText = [
+        `left:${Math.random() * 100}%`,
+        `width:${1 + Math.random() * 2.5}px`,
+        `--dur:${4 + Math.random() * 6}s`,
+        `--delay:${Math.random() * 10}s`,
+        `--drip-height:${22 + Math.random() * 65}px`
+      ].join(';');
+      katziaPtcl.appendChild(el);
+    }
+  }
 }
 
 function selectRoom(roomId) {
@@ -85,6 +139,14 @@ function selectRoom(roomId) {
 function switchScreen(name) {
   els.selectScreen.classList.toggle('active', name === 'select');
   els.timerScreen.classList.toggle('active', name === 'timer');
+
+  if (name === 'select') {
+    // Clean up any lingering selection state so intro anims replay cleanly
+    document.querySelectorAll('.split-panel.is-selecting')
+      .forEach(p => p.classList.remove('is-selecting'));
+    // Repopulate select-screen particles (panels were hidden, animations reset)
+    initSelectParticles();
+  }
 }
 
 function currentRoom() {

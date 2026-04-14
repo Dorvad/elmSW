@@ -47,6 +47,7 @@ body::before {
   100% { opacity: 1; }
 }
 
+
 /* ====== Screens ====== */
 .screen {
   display: none;
@@ -58,22 +59,40 @@ body::before {
   display: block;
   animation: screenFadeIn 0.35s ease;
 }
+/* Select screen uses flex so split panels fill height */
+#screen-select.active {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  animation: none; /* panels have own entrance animations */
+}
 @keyframes screenFadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .container { padding: 16px; max-width: 760px; margin: 0 auto; }
 
-/* ====== Select Screen Header ====== */
-.select-header {
-  padding: 32px 0 4px;
-  text-align: center;
+/* ====== Select Screen — Top bar ====== */
+.select-topbar {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 16px 12px;
+  position: relative;
+  z-index: 10;
+  animation: selectTopIn 0.5s ease-out 0.04s both;
 }
-.select-header h1 {
-  font-size: 34px;
+@keyframes selectTopIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.select-topbar__logo {
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #7ab8ff 0%, #c47aff 60%, #7ab8ff 100%);
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #7ab8ff 0%, #c47aff 55%, #7ab8ff 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -84,60 +103,286 @@ body::before {
   0%   { background-position: 0% center; }
   100% { background-position: 200% center; }
 }
-.select-header p {
+.select-topbar__sub {
   color: var(--muted);
-  margin-top: 6px;
-  font-size: 15px;
+  font-size: 12px;
+  margin-top: 3px;
 }
 
-/* ====== Room Grid & Cards ====== */
-.room-grid { display: grid; gap: 14px; margin-top: 24px; }
-.room-card {
-  background: var(--card);
-  color: var(--text);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 22px 20px;
-  text-align: right;
-  cursor: pointer;
+/* ====== Split Container ====== */
+.split-container {
+  flex: 1;
   position: relative;
+  display: flex;
+  min-height: 0;
   overflow: hidden;
-  backdrop-filter: blur(12px);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-}
-.room-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(61, 127, 255, 0.09) 0%, transparent 55%);
-  border-radius: inherit;
-  transition: opacity 0.22s ease;
-}
-.room-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(100, 160, 255, 0.06), transparent);
-  border-radius: inherit;
-}
-.room-card:hover {
-  transform: translateY(-3px) scale(1.01);
-  border-color: rgba(61, 127, 255, 0.45);
-  box-shadow: 0 12px 40px rgba(61, 127, 255, 0.2), 0 0 0 1px rgba(61, 127, 255, 0.25);
-}
-.room-card:active { transform: scale(0.97); }
-.room-card h2 {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 7px;
-}
-.room-card p {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.65;
 }
 
-/* ====== Top Bar ====== */
+/* ====== Split Panels ====== */
+.split-panel {
+  flex: 1;
+  position: relative;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: flex 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.split-panel:hover { flex: 1.12; }
+/* Slide-in intro animations (restart naturally when screen re-activates) */
+.split-panel--elm {
+  animation: elmPanelIn 0.62s cubic-bezier(0.18, 0.88, 0.32, 1.0) 0.06s both;
+}
+@keyframes elmPanelIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.split-panel--katzia {
+  animation: katziaPanelIn 0.62s cubic-bezier(0.18, 0.88, 0.32, 1.0) 0.06s both;
+}
+@keyframes katziaPanelIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+/* Flash on selection */
+.split-panel.is-selecting {
+  animation: panelSelectFlash 0.44s ease-out forwards !important;
+}
+@keyframes panelSelectFlash {
+  0%   { filter: brightness(1); }
+  28%  { filter: brightness(3.2); }
+  62%  { filter: brightness(1.9); }
+  100% { filter: brightness(1.3); }
+}
+
+/* ── Panel backgrounds ── */
+.panel-bg {
+  position: absolute;
+  inset: 0;
+}
+.panel-bg--elm {
+  background:
+    radial-gradient(ellipse 140% 70% at 38% 92%, rgba(228, 88, 0, 0.78) 0%, transparent 58%),
+    radial-gradient(ellipse  90% 85% at 18% 98%, rgba(130, 36, 0, 0.55) 0%, transparent 56%),
+    linear-gradient(172deg, #1c0700 0%, #0d0300 55%, #080100 100%);
+  transition: filter 0.35s ease;
+}
+.split-panel--elm:hover .panel-bg--elm { filter: brightness(1.14); }
+
+.panel-bg--katzia {
+  background:
+    radial-gradient(ellipse 140% 70% at 62%  8%, rgba(168,  0, 30, 0.80) 0%, transparent 60%),
+    radial-gradient(ellipse  90% 85% at 82%  3%, rgba( 98,  0, 18, 0.55) 0%, transparent 56%),
+    linear-gradient(188deg, #0b0202 0%, #070101 55%, #060101 100%);
+  transition: filter 0.35s ease;
+}
+.split-panel--katzia:hover .panel-bg--katzia { filter: brightness(1.14); }
+
+/* ── In-panel particle containers ── */
+.panel-particle-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* ── Panel content ── */
+.panel-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 28px 14px;
+  text-align: center;
+  animation: panelContentIn 0.55s ease-out 0.80s both;
+}
+@keyframes panelContentIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-icon {
+  font-size: 46px;
+  line-height: 1;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.65));
+  animation: iconFloat 4.5s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%       { transform: translateY(-8px) rotate(3deg); }
+}
+
+.panel-title-en {
+  font-family: 'Cinzel Decorative', 'Georgia', serif;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.split-panel--elm .panel-title-en {
+  color: #ff8c00;
+  text-shadow:
+    0 0  8px rgba(255, 140, 0, 0.92),
+    0 0 24px rgba(255,  70, 0, 0.52),
+    0 2px  8px rgba(0, 0, 0, 0.8);
+}
+.split-panel--katzia .panel-title-en {
+  color: #cc0022;
+  text-shadow:
+    0 0  8px rgba(200,  0, 34, 0.92),
+    0 0 24px rgba(150,  0, 20, 0.52),
+    0 2px  8px rgba(0, 0, 0, 0.8);
+}
+
+.panel-divider {
+  width: 36px;
+  height: 1px;
+  margin: 8px auto 10px;
+  opacity: 0.38;
+}
+.split-panel--elm    .panel-divider { background: #ff8c00; }
+.split-panel--katzia .panel-divider { background: #cc0022; }
+
+.panel-title-he {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+
+.panel-meta {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.panel-meta li {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.32);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.panel-tap {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid;
+  transition: all 0.22s ease;
+}
+.split-panel--elm .panel-tap {
+  color: #ff8c00;
+  border-color: rgba(255, 140, 0, 0.30);
+  background: rgba(255, 140, 0, 0.07);
+}
+.split-panel--elm:hover .panel-tap,
+.split-panel--elm:focus-visible .panel-tap {
+  background: rgba(255, 140, 0, 0.18);
+  box-shadow: 0 0 18px rgba(255, 100, 0, 0.28);
+}
+.split-panel--katzia .panel-tap {
+  color: #cc0022;
+  border-color: rgba(200, 0, 34, 0.30);
+  background: rgba(200, 0, 34, 0.07);
+}
+.split-panel--katzia:hover .panel-tap,
+.split-panel--katzia:focus-visible .panel-tap {
+  background: rgba(200, 0, 34, 0.18);
+  box-shadow: 0 0 18px rgba(180, 0, 25, 0.28);
+}
+
+/* ====== Diagonal Slash Divider ====== */
+.split-slash {
+  position: absolute;
+  top: -5%;
+  /* physical center; skew shifts visually */
+  left: calc(50% - 3px);
+  width: 6px;
+  height: 110%;
+  z-index: 20;
+  pointer-events: none;
+  transform-origin: center center;
+  transform: skewX(-7deg);
+  animation: slashReveal 0.34s ease-out 0.58s both;
+  background: linear-gradient(
+    to bottom,
+    transparent                   0%,
+    rgba(255, 180,  80, 0.72)    10%,
+    rgba(255, 255, 255, 0.96)    34%,
+    rgba(255, 255, 255, 1.00)    50%,
+    rgba(222,  28,  48, 0.96)    70%,
+    rgba(140,   0,  18, 0.62)    90%,
+    transparent                  100%
+  );
+  box-shadow:
+    -6px 0 18px 2px rgba(255, 120,  0, 0.44),
+    -2px 0  6px 1px rgba(255, 160,  0, 0.28),
+     6px 0 18px 2px rgba(170,   0, 22, 0.44),
+     2px 0  6px 1px rgba(200,   0, 30, 0.26);
+  filter: blur(0.4px);
+}
+@keyframes slashReveal {
+  from { transform: skewX(-7deg) scaleY(0); opacity: 0; }
+  to   { transform: skewX(-7deg) scaleY(1); opacity: 1; }
+}
+/* Moving light scan */
+.split-slash::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  height: 32%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 50%;
+  animation: slashScan 3.6s ease-in-out 1.5s infinite;
+}
+@keyframes slashScan {
+  0%   { top: -32%; opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { top: 100%;  opacity: 0; }
+}
+
+/* ====== Room-select Transition Overlay ====== */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+}
+.transition-overlay--elm {
+  background: radial-gradient(ellipse at 25% 50%, #ff7200, #b03e00);
+}
+.transition-overlay--katzia {
+  background: radial-gradient(ellipse at 75% 50%, #b8001c, #720010);
+}
+.transition-overlay.active {
+  pointer-events: auto;
+  animation: overlayBurst 0.54s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes overlayBurst {
+  0%   { opacity: 0;    transform: scale(0.96); }
+  38%  { opacity: 0.85; transform: scale(1.00); }
+  100% { opacity: 0;    transform: scale(1.02); }
+}
+
+/* ====== Top Bar (timer screen) ====== */
 .topbar {
   display: flex;
   justify-content: space-between;
